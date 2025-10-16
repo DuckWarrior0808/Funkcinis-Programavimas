@@ -257,8 +257,7 @@ parseCustom = pmap (\(_, _, s) -> Custom s) $ and3 (keyword "custom") ws parseSt
 -- Right (Pizza," fdsf")
 --
 -- >>> parseFood "sushi"
--- Right (Sushi," ")
---
+-- Right (Sushi,"")
 -- >>> parseFood "custom buritto "
 -- Right (Custom "buritto"," ")
 --
