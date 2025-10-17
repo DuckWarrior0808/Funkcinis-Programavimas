@@ -20,8 +20,7 @@ import qualified Control.Applicative as B
 -- @(a <> b) <> c == a <> (b <> c)@
 --
 -- Monoids are powerful because they let you combine values of the same type
--- in a consistent and predictable way — for example, lists can be concatenated,
--- numbers can be summed, and boolean values can be combined with logical AND/OR.
+-- For example, lists can be concatenated, numbers can be summed, and boolean values can be combined with logical AND/OR.
 --
 -- >>> mappend [1,2,3] [4,5,6]
 -- [1,2,3,4,5,6]
