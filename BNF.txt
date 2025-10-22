@@ -1,0 +1,28 @@
+<command> ::= "Create" | "Add" | "Set" | "List" | "Calculate" | "Dump"
+<cline> ::= <command> <stmt>
+<stmt> ::= <factory> | <model> | <part> | <subpart> | <setcost> | <listing> | <calc> | " examples"
+
+<factory> ::= " factory " <ident>
+<model> ::= " model " <qname> " to " <ident>
+<part> ::= " part " <qname> " to " <mpath>
+<subpart> ::= " subpart " <qname> " under " <ppath>
+<setcost> ::= " cost " <ppath> " = " <number>
+<listing> ::= " parts in " <mpath>
+<calc> ::= " cost of " <target>
+
+<target> ::= <mpath> | <ppath>
+<mpath> ::= <ident> "/" <qname>
+<ppath> ::= <mpath> "/" <segs>
+<segs> ::= <qname> | <qname> "/" <segs>
+
+<qname> ::= "\"" <wordseq> "\""
+<wordseq> ::= <word> | <word> " " <wordseq>
+<word> ::= <alphanum> | <alphanum> <word>
+
+<ident> ::= <letter> | <letter> <ident>
+<alphanum> ::= <letter> | <digit>
+<letter> ::= [a-z] | [A-Z]
+<digit> ::= [0-9]
+
+<number> ::= <digits> | <digits> "." <digits>
+<digits> ::= <digit> | <digit> <digits>
