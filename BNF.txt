@@ -1,14 +1,24 @@
-<command> ::= "Create" | "Add" | "Set" | "List" | "Calculate" | "Dump"
-<cline> ::= <command> <stmt>
-<stmt> ::= <factory> | <model> | <part> | <subpart> | <setcost> | <listing> | <calc> | " examples"
+<cline> ::= <command_create> | <command_add> | <command_set> | <command_list> | <command_calculate> | <command_dump>
 
-<factory> ::= " factory " <ident>
-<model> ::= " model " <qname> " to " <ident>
-<part> ::= " part " <qname> " to " <mpath>
-<subpart> ::= " subpart " <qname> " under " <ppath>
-<setcost> ::= " cost " <ppath> " = " <number>
-<listing> ::= " parts in " <mpath>
-<calc> ::= " cost of " <target>
+<command_create> ::= "create" <phone> | "create" <part>
+<command_add> ::= "add" <subpart>
+<command_set> ::= "set" <setcost>
+<command_list> ::= "list" <listing>
+<command_calculate> ::= "calculate" <calc>
+<command_dump> ::= "dump" <ident>
+
+<phone> ::= <ident> <antenna> <keypad> <camera> <proccessor>
+<antenna> ::= "Wi-fi 6" | "Wi-fi 7"
+<keypad> ::= "German" | "Swedish" | "American"
+<camera> ::= "Basic" | "Pro" | "Pro Ultra"
+<proccessor> ::= "X6" | "X7" | "X8"
+<model> ::= "model" <qname> "to" <ident>
+<part> ::= "part" <qname> "to" <mpath>
+<subpart> ::= "subpart" <qname> "under" <ppath>
+
+<setcost> ::= "cost" <ppath> "=" <number>
+<listing> ::= "partsin" <mpath>
+<calc> ::= "costof" <target>
 
 <target> ::= <mpath> | <ppath>
 <mpath> ::= <ident> "/" <qname>
