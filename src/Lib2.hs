@@ -11,18 +11,16 @@ import Data.Char (isDigit, isLetter, isSpace)
 type ErrorMsg = String
 type Parser a = String -> Either ErrorMsg (a, String)
 
--- =============================================================================
--- PARSER COMBINATORS
--- =============================================================================
+-- PARSER 
 
--- | Tries p1, if it fails, tries p2
+
 orElse :: Parser a -> Parser a -> Parser a
 orElse p1 p2 input =
   case p1 input of
     Right result -> Right result
     Left _ -> p2 input
 
--- | Combines two parsers
+
 and2 :: (a -> b -> c) -> Parser a -> Parser b -> Parser c
 and2 f p1 p2 input =
   case p1 input of
@@ -32,7 +30,7 @@ and2 f p1 p2 input =
         Left err -> Left err
     Left err -> Left err
 
--- | Combines three parsers
+
 and3 :: (a -> b -> c -> d) -> Parser a -> Parser b -> Parser c -> Parser d
 and3 f p1 p2 p3 input =
   case p1 input of
@@ -45,7 +43,7 @@ and3 f p1 p2 p3 input =
         Left err -> Left err
     Left err -> Left err
 
--- | Combines four parsers
+
 and4 :: (a -> b -> c -> d -> e) -> Parser a -> Parser b -> Parser c -> Parser d -> Parser e
 and4 f p1 p2 p3 p4 input =
   case p1 input of
@@ -61,7 +59,7 @@ and4 f p1 p2 p3 p4 input =
         Left err -> Left err
     Left err -> Left err
 
--- | Combines five parsers
+
 and5 :: (a -> b -> c -> d -> e -> f) -> Parser a -> Parser b -> Parser c -> Parser d -> Parser e -> Parser f
 and5 f p1 p2 p3 p4 p5 input =
   case p1 input of
@@ -86,9 +84,8 @@ and2_ p1 p2 = and2 (\x _ -> x) p1 p2
 _and2 :: Parser a -> Parser b -> Parser b
 _and2 p1 p2 = and2 (\_ x -> x) p1 p2
 
--- =============================================================================
 -- PRIMITIVE PARSERS
--- =============================================================================
+
 
 parseChar :: Char -> Parser Char
 parseChar c (x:xs)
@@ -148,9 +145,9 @@ parseQName input =
              Left _ -> Left "Missing closing quote"
     Left err -> Left err
 
--- =============================================================================
+
 -- DOMAIN PARSERS
--- =============================================================================
+
 
 -- BNF primitives
 parseAntenna :: Parser String
@@ -166,7 +163,6 @@ parseProcessor :: Parser String
 parseProcessor = (parseToken "X6") `orElse` (parseToken "X7") `orElse` (parseToken "X8")
 
 -- <phone>
--- Parses 5 items per BNF, but Lib1.CreatePhone only takes 4. We ignore the processor.
 parsePhone :: Parser Lib1.Command
 parsePhone = and5 (\id ant key cam _ -> Lib1.CreatePhone id ant key cam)
              (and2_ parseIdent parseWhitespace)
@@ -202,7 +198,6 @@ parsePPath = and3 (\(mId, mName) _ segs -> (mId, mName, segs))
              parseSegs
 
 -- <command_create> ::= "create" <part>
--- Maps to Lib1.AddPart
 parseCreatePart :: Parser Lib1.Command
 parseCreatePart = and4 (\_ name _ mpath -> Lib1.AddPart name mpath)
                   (parseToken "part")
@@ -214,7 +209,6 @@ parseCreate :: Parser Lib1.Command
 parseCreate = _and2 (parseToken "create") (parseCreatePart `orElse` parsePhone)
 
 -- <command_add> ::= "add" <subpart>
--- Maps to Lib1.AddSubpart
 parseSubpart :: Parser Lib1.Command
 parseSubpart = and4 (\_ name _ (mId, mName, segs) -> Lib1.AddSubpart name (mId, mName, segs))
                (parseToken "subpart")
@@ -226,7 +220,6 @@ parseAdd :: Parser Lib1.Command
 parseAdd = _and2 (parseToken "add") parseSubpart
 
 -- <command_set> ::= "set" <setcost>
--- Maps to Lib1.SetCost
 parseSetCost :: Parser Lib1.Command
 parseSetCost = and4 (\_ (mId, mName, segs) _ val -> Lib1.SetCost (mId, mName, segs) val)
                (parseToken "cost")
@@ -238,7 +231,6 @@ parseSet :: Parser Lib1.Command
 parseSet = _and2 (parseToken "set") parseSetCost
 
 -- <command_list>
--- Maps to Lib1.ListParts
 parseList :: Parser Lib1.Command
 parseList = and3 (\_ _ mpath -> Lib1.ListParts mpath)
             (parseToken "list")
@@ -246,7 +238,6 @@ parseList = and3 (\_ _ mpath -> Lib1.ListParts mpath)
             (and2_ parseMPath parseWhitespace)
 
 -- <command_calculate>
--- Maps to Lib1.CalculateCost
 parseCalculate :: Parser Lib1.Command
 parseCalculate = and3 (\_ _ target -> Lib1.CalculateCost target)
                  (parseToken "calculate")
@@ -269,9 +260,9 @@ parseDump = and2 (\_ i -> if i == "Examples" then Lib1.Dump Lib1.Examples else L
             (parseToken "dump")
             (and2_ parseIdent parseWhitespace)
 
--- =============================================================================
+
 -- MAIN ENTRY POINTS
--- =============================================================================
+
 
 parseCommand :: Parser Lib1.Command
 parseCommand = parseCreate
@@ -285,17 +276,15 @@ process :: Lib1.Command -> [String]
 process (Lib1.Dump Lib1.Examples) = "Examples:" : map toCliCommand Lib1.examples
 process c = ["Parsed as " ++ show c]
 
--- =============================================================================
+
 -- CLASSES
--- =============================================================================
+
 
 class ToCliCommand a where
   toCliCommand :: a -> String
 
 instance ToCliCommand Lib1.Command where
   toCliCommand :: Lib1.Command -> String
-  -- NOTE: BNF requires a processor, but Lib1.CreatePhone drops it.
-  -- We add "X8" as a default to make the output valid BNF.
   toCliCommand (Lib1.CreatePhone ident ant key cam) =
       "create " ++ ident ++ " " ++ ant ++ " " ++ key ++ " " ++ cam ++ " X8"
 
